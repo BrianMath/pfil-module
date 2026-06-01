@@ -13,12 +13,22 @@ static pfil_hook_t my_hook;
 
 static pfil_return_t
 my_filter(struct mbuf **mp, struct ifnet *ifp, int dir, void *arg, struct inpcb *inp) {
+	// Convert an mbuf pointer to a data pointer of the specified type
 	struct ip *ip = mtod(*mp, struct ip *);
 
-	printf("|pfil: src=%x dst=%x|\n",
-		ntohl(ip->ip_src.s_addr),
-		ntohl(ip->ip_dst.s_addr));
-		// ntohl: big endian to little endian
+	// ntohl: big endian to little endian
+	int src = ntohl(ip->ip_src.s_addr);
+	int dst = ntohl(ip->ip_dst.s_addr);
+	printf("|pfil: src=%d.%d.%d.%d dst=%d.%d.%d.%d|\n",
+		(src & 0xFF000000) >> 24,
+		(src & 0x00FF0000) >> 16,
+		(src & 0x0000FF00) >> 8,
+		src & 0x000000FF,
+		(dst & 0xFF000000) >> 24,
+		(dst & 0x00FF0000) >> 16,
+		(dst & 0x0000FF00) >> 8,
+		dst & 0x000000FF
+	);
 
 	return PFIL_PASS;
 }
